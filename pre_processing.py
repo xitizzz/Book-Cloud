@@ -1,4 +1,6 @@
+import json
 
+STOPWORDS = set(json.load(open("./resources/stop_words.json", "r"))["english"])
 
 class PreProcessing:
 
@@ -22,6 +24,7 @@ class PreProcessing:
     
     def create_unigrams(self):
         self.unigrams = self.text.split()
+        self.unigrams = [w for w in self.unigrams if w not in STOPWORDS]
 
     def create_bigrams(self):
         self.bigrams = [f"{b[0]}_{b[1]}" for b in zip(text.split()[:-1], text.split()[1:])]
