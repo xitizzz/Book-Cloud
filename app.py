@@ -12,9 +12,7 @@ from wordcloud import WordCloud
 from pre_processing import TextProcessor
 
 # Initialization
-external_stylesheets = ['https://codepen.io/xitizzz/pen/XWmVjqo.css']
-
-app = Dash(__name__, external_stylesheets=external_stylesheets)
+app = Dash(__name__)
 
 books_options = [{"label": b.split(".")[0].replace("_", " "),  "value":b} for b in listdir("./books")]
 
@@ -45,7 +43,6 @@ app.layout = html.Div(style={'backgroundColor': '#000000'},
 
     html.Div(id='wordcloud-div', children=[html.Img(id="wordcloud-img", style={
              "max-width": "80%", "height": "auto", "display": "block", "margin-left": "auto", "margin-right": "auto", "padding-top": "20px"})]),
-
 ])
 
 # Clean up text and other stuff
@@ -76,7 +73,6 @@ def update_output(n_clicks, word_count, book):
         img = BytesIO()
         wc.to_image().save(img, format='PNG')
         return 'data:image/png;base64,{}'.format(b64encode(img.getvalue()).decode())
-
 
 if __name__ == '__main__':
     app.run_server(debug=True)
