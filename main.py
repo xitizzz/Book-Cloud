@@ -75,7 +75,7 @@ def update_output(n_clicks, word_count, book):
     else:
         clicks = n_clicks
         text = prepare_text(book)
-        wc = WordCloud(width=1920, height=1080,
+        wc = WordCloud(width=1200, height=700,
                        max_words=int(100 if word_count is None else word_count))\
             .fit_words(frequencies=text.compute_frequencies())
         img = BytesIO()
