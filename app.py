@@ -1,30 +1,27 @@
-import dash
-import dash_core_components as dcc
-import dash_html_components as html
-from dash.dependencies import Input, Output
-from dash.exceptions import PreventUpdate
-
-import os
-import base64
-from collections import Counter
-from wordcloud import WordCloud
-from pre_processing import PreProcessing
+from os import listdir
+from base64 import b64encode
 from io import BytesIO
 
+from dash import Dash
+from dash.dependencies import Input, Output
+from dash.exceptions import PreventUpdate
+import dash_core_components as dcc
+import dash_html_components as html
+
+from wordcloud import WordCloud
+from pre_processing import TextProcessor
+
+# Initialization
 external_stylesheets = ['https://codepen.io/xitizzz/pen/XWmVjqo.css']
 
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+app = Dash(__name__, external_stylesheets=external_stylesheets)
 
-books_options = [{"label": b.split(".")[0].replace("_", " "),  "value":b} for b in os.listdir("./books")]
+books_options = [{"label": b.split(".")[0].replace("_", " "),  "value":b} for b in listdir("./books")]
 
 clicks = 0
 
-colors = {
-    'background': '#000000',
-    'text': '#7FDBFF'
-}
-
-app.layout = html.Div(style={'backgroundColor': colors['background']}, 
+# HTML Layout
+app.layout = html.Div(style={'backgroundColor': '#000000'},
     children=[
     html.Img(style={
              "max-width": "30%", "height": "auto", "display": "block", "margin-left": "auto", "margin-right": "auto"},
@@ -51,21 +48,20 @@ app.layout = html.Div(style={'backgroundColor': colors['background']},
 
 ])
 
-
+# Clean up text and other stuff
 def prepare_text(book):
-    text = PreProcessing(f"books/{book}")
+    text = TextProcessor(f"books/{book}")
     text.chop_gutenberg_metadata()
     text.clean_up_text()
     text.create_unigrams()
     return text
 
-
+# Update WordCloud
 @app.callback(
     Output(component_id='wordcloud-img', component_property='src'),
     [Input(component_id='generate', component_property='n_clicks'),
      Input(component_id='word-count-input', component_property='value'),
-     Input(component_id='book-dropdown', component_property='value')]
-)
+     Input(component_id='book-dropdown', component_property='value')])
 def update_output(n_clicks, word_count, book):
     global clicks
     print(n_clicks, clicks)
@@ -76,10 +72,10 @@ def update_output(n_clicks, word_count, book):
         text = prepare_text(book)
         wc = WordCloud(width=1920, height=1080, 
                         max_words=int(100 if word_count is None else word_count))\
-                    .fit_words(frequencies=dict(Counter(text.unigrams)))
+                    .fit_words(frequencies=text.compute_frequencies())
         img = BytesIO()
         wc.to_image().save(img, format='PNG')
-        return 'data:image/png;base64,{}'.format(base64.b64encode(img.getvalue()).decode())
+        return 'data:image/png;base64,{}'.format(b64encode(img.getvalue()).decode())
 
 
 if __name__ == '__main__':
