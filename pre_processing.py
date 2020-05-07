@@ -20,11 +20,11 @@ class PreProcessing:
     def clean_up_text(self):
         self.text = self.text.replace("\n", " ")
         self.text = self.text.translate(
-            {ord(c): " " for c in "!@#$%^&*()[]{};:,./<>?\|`~-=_\"+"}).lower()
+            {ord(c): " " for c in "!@#$%^&*()[]{};:,./<>?\|`~-=_'\"+\u2018\u2019\u201c\u201d"})
     
     def create_unigrams(self):
         self.unigrams = self.text.split()
-        self.unigrams = [w for w in self.unigrams if w not in STOPWORDS]
+        self.unigrams = [w for w in self.unigrams if w.lower() not in STOPWORDS and len(w)>1]
 
     def create_bigrams(self):
         self.bigrams = [f"{b[0]}_{b[1]}" for b in zip(text.split()[:-1], text.split()[1:])]
