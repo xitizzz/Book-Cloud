@@ -1,8 +1,10 @@
 import json
+from collections import Counter
+
 
 STOPWORDS = set(json.load(open("./resources/stop_words.json", "r"))["english"])
 
-class PreProcessing:
+class TextProcessor:
 
     def __init__(self):
         self.text = "This is sample text."
@@ -24,7 +26,27 @@ class PreProcessing:
     
     def create_unigrams(self):
         self.unigrams = self.text.split()
-        self.unigrams = [w for w in self.unigrams if w.lower() not in STOPWORDS and len(w)>1]
+        self.unigrams = [w if w.istitle() else w.lower() for w in self.unigrams if w.lower() not in STOPWORDS and len(w)>1]
+
+    def merge_words(self, w1, w2, raw_frequencies):
+        if raw_frequencies[w1] >= raw_frequencies[w2]:
+            self.frequencies[w1] = raw_frequencies[w1] + raw_frequencies[w2]
+        else:
+            self.frequencies[w2] = raw_frequencies[w1] + raw_frequencies[w2]
+
+    def compute_frequencies(self):
+        raw_frequencies = dict(Counter(self.unigrams))
+        self.frequencies = {}
+        for w in raw_frequencies:
+            if w.islower():
+                if w.title() in raw_frequencies:
+                    self.merge_words(w.title(), w, raw_frequencies)
+                elif w+'s' in raw_frequencies:
+                   self.merge_words(w, w+'s', raw_frequencies)
+                else:
+                    self.frequencies[w] = raw_frequencies[w]                    
+            
+        return self.frequencies
 
     def create_bigrams(self):
         self.bigrams = [f"{b[0]}_{b[1]}" for b in zip(text.split()[:-1], text.split()[1:])]
