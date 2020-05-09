@@ -1,0 +1,1 @@
+gcloud app deploy app.yaml --project bookcloud-276019
