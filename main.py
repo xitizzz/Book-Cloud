@@ -16,6 +16,7 @@ from pre_processing import TextProcessor
 # Initialization
 server = Flask(__name__)
 app = Dash(__name__, server=server)
+app.title = 'Book Cloud'
 
 books_options = [{"label": b.split(".")[0].replace(
     "_", " "),  "value":b} for b in listdir("./books")]
@@ -45,8 +46,11 @@ app.layout = html.Div(style={'backgroundColor': '#000000'},
                                                               "width": "100px", "float": "right", "text-align": "center", "padding": "auto"})
     ]),
 
-    html.Div(id='wordcloud-div', children=[html.Img(id="wordcloud-img", style={
-             "max-width": "80%", "height": "auto", "display": "block", "margin-left": "auto", "margin-right": "auto", "padding-top": "20px"})]),
+    html.Div(id='wordcloud-div', children=[dcc.Loading(children=[
+        html.Img(id="wordcloud-img", style={
+             "max-width": "80%", "height": "auto", "display": "block", 
+             "margin-left": "auto", "margin-right": "auto", "padding-top": "20px"})
+    ])]),
 ])
 
 # Clean up text and other stuff
