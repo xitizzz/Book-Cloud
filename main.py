@@ -28,7 +28,7 @@ app.layout = html.Div(style={'backgroundColor': '#000000'}, children=[
                     "margin-left": "auto", "margin-right": "auto"},
              src=app.get_asset_url('book-cloud.png')),
 
-    html.Div(id='input-div', style={"width": "40%", "margin": "auto", "padding": "20px"},
+    html.Div(id='input-div', style={"width": "40%", "margin": "auto", "padding": "10px"},
              children=[
                 dcc.Dropdown(id='book-dropdown',
                      style={"background-color": "black", "color": "black",
