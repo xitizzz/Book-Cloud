@@ -1,5 +1,7 @@
 import json
 from collections import Counter
+from base64 import b64encode, b64decode
+
 
 
 STOPWORDS = set(json.load(open("./resources/stop_words.json", "r"))["english"])
@@ -9,10 +11,13 @@ class TextProcessor:
     def __init__(self):
         self.text = "This is sample text."
     
-    def __init__(self, text_path):
-        with open(text_path) as file:
-            self.text = file.read()
-
+    def __init__(self, custom_text, method="file"):
+        if method=="file":
+            with open(custom_text) as file:
+                self.text = file.read()
+        elif method=="base64":
+            self.text = b64decode(custom_text.split("base64,")[-1]).decode("utf-8")
+    
     def chop_gutenberg_metadata(self):
         if "*** START OF THIS PROJECT GUTENBERG EBOOK" in self.text:
             self.text = self.text.split("*** START OF THIS PROJECT GUTENBERG EBOOK")[1]
