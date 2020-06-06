@@ -23,62 +23,72 @@ books_options = [{"label": b.split(".")[0].replace(
 clicks = None
 
 # HTML Layout
-app.layout = html.Div(style={'backgroundColor': '#000000'}, children=[
-    html.Img(style={"max-width": "30%", "height": "auto", "display": "block", 
-                    "margin-left": "auto", "margin-right": "auto"},
-             src=app.get_asset_url('book-cloud.png')),
+app.layout = html.Div(style={'backgroundColor': '#000000'}, 
+    children=[
+        html.Div(className="content", style={"min-height": "calc(100vh - 50px)"},
+            children=[
+                html.Img(style={"max-width": "30%", "height": "auto", "display": "block",
+                                "margin-left": "auto", "margin-right": "auto"},
+                         src=app.get_asset_url('book-cloud.png')),
 
-    html.Div(id='input-div', style={"width": "40%", "margin": "auto", "padding": "10px"},
-             children=[
-                dcc.Dropdown(id='book-dropdown',
-                     style={"background-color": "black", "color": "black",
-                            "display": "block", "width": "100%", "padding-bottom": "10px"},
-                     options=books_options,
-                     placeholder='Select A Book'
-                 ),
-                html.Div(id='upload-div', children=[
-                     dcc.Upload(
-                         id='upload-text',
-                         children=html.Div([
-                             html.A('Upload'),
-                             ' Your Own Book'
-                             
-                         ]),
-                         style={
-                             'width': '100%',
-                             'height': '30px',
-                             'lineHeight': '30px',
-                             'borderWidth': '1px',
-                             'borderStyle': 'dashed',
-                             'borderRadius': '5px',
-                             'textAlign': 'center',
-                             'margin-bottom': '10px'
-                         },
-                         multiple=False
-                     ),
-                 ]),
-                html.Div(id="word-count-slider", children=[
-                    html.Div(children=["Word Count"], style={"width": "100px",
-                                                             "float": "left",
-                                                             "display": "inline-block",
-                                                             "color": "white"}),
-                    dcc.Slider(id='word-count-input',
-                                min=10,
-                                max=200,
-                                step=5,
-                                value=100,
-                                tooltip={'always_visible': True, 'placement': 'topRight'})], 
-                    style={"width": "250px", 
-                           "float": "left", "display": "inline-block"}),
-                html.Button('Generate', id='generate', style={"display": "inline-block",
-                                                              "width": "100px", "float": "right", "text-align": "center", "padding": "auto"})
-    ]),
+                html.Div(id='input-div', style={"width": "40%", "margin": "auto", "padding": "10px"},
+                         children=[
+                    dcc.Dropdown(id='book-dropdown',
+                                 style={"background-color": "black", "color": "black",
+                                        "display": "block", "width": "100%", "padding-bottom": "10px"},
+                                 options=books_options,
+                                 placeholder='Select A Book'
+                                 ),
+                    html.Div(id='upload-div', children=[
+                        dcc.Upload(
+                            id='upload-text',
+                            children=html.Div([
+                                html.A('Upload'),
+                                ' Your Own Book'
 
-    html.Div(id='wordcloud-div', children=[dcc.Loading(children=[
-        html.Img(id="wordcloud-img", style={
-             "max-width": "80%", "height": "auto", "display": "block", 
-             "margin-left": "auto", "margin-right": "auto", "padding-top": "20px"})
-    ])]),
+                            ]),
+                            style={
+                                'width': '100%',
+                                'height': '30px',
+                                'lineHeight': '30px',
+                                'borderWidth': '1px',
+                                'borderStyle': 'dashed',
+                                'borderRadius': '5px',
+                                'textAlign': 'center',
+                                'margin-bottom': '10px'
+                            },
+                            multiple=False
+                        ),
+                    ]),
+                    html.Div(id="word-count-slider", children=[
+                        html.Div(children=["Word Count"], style={"width": "100px",
+                                                                 "float": "left",
+                                                                 "display": "inline-block",
+                                                                 "color": "white"}),
+                        dcc.Slider(id='word-count-input',
+                                   min=10,
+                                   max=200,
+                                   step=5,
+                                   value=100,
+                                   tooltip={'always_visible': True, 'placement': 'topRight'})],
+                             style={"width": "250px",
+                                    "float": "left", "display": "inline-block"}),
+                    html.Button('Generate', id='generate', style={"display": "inline-block",
+                                                                  "width": "100px", "float": "right", "text-align": "center", "padding": "auto"})
+                ]),
+
+                html.Div(id='wordcloud-div', children=[dcc.Loading(children=[
+                    html.Img(id="wordcloud-img", style={
+                        "max-width": "80%", "height": "auto", "display": "block",
+                        "margin-left": "auto", "margin-right": "auto", "padding-top": "20px"})
+                ])]),
+            ]
+        ),
+        
+        html.Div(children=[html.P("Created with ❤️ and Python")], className="footer",
+                    style={"text-align": "center", "height": "50px"
+        }
+        )
 ])
 
 # Clean up text and other stuff
