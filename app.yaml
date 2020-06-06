@@ -1,3 +1,10 @@
 runtime: python37
 entrypoint: gunicorn -b :$PORT -w 4 main:server
 instance_class: F4
+
+# Redirect HTTP to HTTPS
+handlers:
+- url: /.*
+  secure: always
+  redirect_http_response_code: 301
+  script: auto
