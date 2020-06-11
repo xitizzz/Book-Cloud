@@ -12,6 +12,8 @@ import dash_html_components as html
 from wordcloud import WordCloud
 from pre_processing import TextProcessor
 
+DEBUG = False
+
 # Initialization
 server = Flask(__name__)
 app = Dash(__name__, server=server)
@@ -27,11 +29,15 @@ app.layout = html.Div(style={'backgroundColor': '#000000'},
     children=[
         html.Div(className="content", style={"min-height": "calc(100vh - 50px)"},
             children=[
-                html.Img(style={"max-width": "30%", "height": "auto", "display": "block",
+                # Set style so that it is hidden!
+                html.Div(id="size", style={
+                         "position": "fixed", "top": 0, "left": 0} if DEBUG else {"display": "none"}),
+                dcc.Location(id="url"),
+                html.Img(style={"max-width": "500px", "height": "auto", "display": "block",
                                 "margin-left": "auto", "margin-right": "auto"},
                          src=app.get_asset_url('book-cloud.png')),
 
-                html.Div(id='input-div', style={"width": "40%", "margin": "auto", "padding": "10px"},
+                html.Div(id='input-div', style={"width": "700px", "margin": "auto", "padding": "10px"},
                          children=[
                     dcc.Dropdown(id='book-dropdown',
                                  style={"background-color": "black", "color": "black",
@@ -80,7 +86,7 @@ app.layout = html.Div(style={'backgroundColor': '#000000'},
                 html.Div(id='wordcloud-div', children=[dcc.Loading(children=[
                     html.Img(id="wordcloud-img", style={
                         "max-width": "80%", "height": "auto", "display": "block",
-                        "margin-left": "auto", "margin-right": "auto", "padding-top": "20px"})
+                        "margin-left": "auto", "margin-right": "auto"})
                 ])]),
             ]
         ),
@@ -91,17 +97,16 @@ app.layout = html.Div(style={'backgroundColor': '#000000'},
         )
 ])
 
-# Clean up text and other stuff
-def prepare_text(book, encoding=""):
-    if (encoding=="base64"):
-        text = TextProcessor(f"books/{book}", "base64")
-    else:
-        text = TextProcessor(f"books/{book}")
-    text.chop_gutenberg_metadata()
-    text.clean_up_text()
-    text.create_unigrams()
-    return text
-
+# Get screen resolution on client side
+app.clientside_callback(
+    """
+    function(url) {
+        return "".concat(window.innerWidth, "x", window.innerHeight);
+    }
+    """,
+    Output('size', 'children'),
+    [Input('url', 'href')]
+)
 
 # Update Upload Text
 @app.callback(
@@ -137,11 +142,14 @@ def reset_upload(book):
     [Input(component_id='generate', component_property='n_clicks'),
      Input(component_id='word-count-input', component_property='value'),
      Input(component_id='book-dropdown', component_property='value'),
-     Input('upload-text', 'contents')],
+     Input('upload-text', 'contents'),
+     Input('size', 'children')
+     ],
     [State('upload-text', 'filename')])
-def update_output(n_clicks, word_count, book, custom_text, file_name):
+def update_output(n_clicks, word_count, book, custom_text, size, file_name):
     global clicks
-    print(n_clicks, clicks)
+    print("Clicks:", n_clicks, clicks)
+    wc_width, wc_height = get_word_cloud_size(size)
     if n_clicks == clicks or (book is None and custom_text is None):
         clicks = n_clicks
         raise PreventUpdate
@@ -151,13 +159,31 @@ def update_output(n_clicks, word_count, book, custom_text, file_name):
             text = prepare_text(custom_text, "base64")
         else:
             text = prepare_text(book)
-        wc = WordCloud(width=1200, height=700,
+        wc = WordCloud(width=wc_width, height=wc_height,
                        max_words=int(100 if word_count is None else word_count))\
                         .fit_words(frequencies=text.compute_frequencies())
         img = BytesIO()
         wc.to_image().save(img, format='PNG')
         return 'data:image/png;base64,{}'.format(b64encode(img.getvalue()).decode())
 
+# Clean up text and other stuff
+def prepare_text(book, encoding=""):
+    if (encoding == "base64"):
+        text = TextProcessor(f"books/{book}", "base64")
+    else:
+        text = TextProcessor(f"books/{book}")
+    text.chop_gutenberg_metadata()
+    text.clean_up_text()
+    text.create_unigrams()
+    return text
+
+def get_word_cloud_size(size):
+    print(f"Resolution: {size}")
+    width, height = int(size.split("x")[0]), int(size.split("x")[-1])
+    if height > width:
+        return 900, 900
+    else:
+        return 1200, 700
 
 if __name__ == '__main__':
-    app.run_server(debug=True, port=8080)
+    app.run_server(debug=DEBUG, port=8080)
