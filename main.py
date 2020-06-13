@@ -8,6 +8,8 @@ from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 import dash_core_components as dcc
 import dash_html_components as html
+import dash_bootstrap_components as dbc
+
 
 from wordcloud import WordCloud
 from pre_processing import TextProcessor
@@ -16,7 +18,9 @@ DEBUG = False
 
 # Initialization
 server = Flask(__name__)
-app = Dash(__name__, server=server)
+app = Dash(__name__, server=server,
+           meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}]
+        )
 app.title = 'Book Cloud'
 
 books_options = [{"label": b.split(".")[0].replace(
@@ -33,11 +37,12 @@ app.layout = html.Div(style={'backgroundColor': '#000000'},
                 html.Div(id="size", style={
                          "position": "fixed", "top": 0, "left": 0} if DEBUG else {"display": "none"}),
                 dcc.Location(id="url"),
-                html.Img(style={"max-width": "500px", "height": "auto", "display": "block",
+                html.Img(style={"height": "auto", "display": "block",
                                 "margin-left": "auto", "margin-right": "auto"},
+                            className= "dynamic-width",
                          src=app.get_asset_url('book-cloud.png')),
-
-                html.Div(id='input-div', style={"width": "700px", "margin": "auto", "padding": "10px"},
+                html.Div(id='input-div', style={"margin": "auto", "padding": "10px"},
+                         className="dynamic-width",
                          children=[
                     dcc.Dropdown(id='book-dropdown',
                                  style={"background-color": "black", "color": "black",
@@ -77,24 +82,18 @@ app.layout = html.Div(style={'backgroundColor': '#000000'},
                                    step=5,
                                    value=100,
                                    tooltip={'always_visible': True, 'placement': 'topRight'})],
-                             style={"width": "250px",
+                             style={"width": "60%",
                                     "float": "left", "display": "inline-block"}),
                     html.Button('Generate', id='generate', style={"display": "inline-block",
-                                                                  "width": "100px", "float": "right", "text-align": "center", "padding": "auto"})
-                ]),
-
+                                                                  "width": "30%", "float": "right", "text-align": "center", "padding": "auto"})]),
                 html.Div(id='wordcloud-div', children=[dcc.Loading(children=[
                     html.Img(id="wordcloud-img", style={
                         "max-width": "80%", "height": "auto", "display": "block",
-                        "margin-left": "auto", "margin-right": "auto"})
-                ])]),
+                        "margin-left": "auto", "margin-right": "auto"})])]),
             ]
         ),
-        
         html.Div(children=[html.P("Created with ❤️ and Python")], className="footer",
-                    style={"text-align": "center", "height": "50px"
-        }
-        )
+                    style={"text-align": "center", "height": "50px"})
 ])
 
 # Get screen resolution on client side
