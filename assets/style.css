@@ -231,6 +231,7 @@ body {
 }
 
 
+
 /* Typography
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 h1,
@@ -616,3 +617,15 @@ there.
 
 /* Larger than Desktop HD */
 @media (min-width: 1200px) {}
+
+@media (orientation: landscape) {
+    .dynamic-width {
+        width: 35%;
+    }
+}
+
+@media (orientation: portrait) {
+    .dynamic-width {
+        width: 90%;
+    }
+}
